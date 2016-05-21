@@ -5,10 +5,12 @@ function mapModel() {
   this.tiles = L.tileLayer('http://a.tiles.mapbox.com/v3/lyzidiamond.map-ietb6srb/{z}/{x}/{y}.png', {
     maxZoom: 19
   }); 
-  this.url = 'https://www.rideindego.com/stations/json/';
+  _this.url = 'https://www.rideindego.com/stations/json/';
+  _this.itemAdded = new Event(this);
 
-  this.sendRequest = function(url) {
-    var _this = this;
+
+  _this.sendRequest = function(url) {
+    console.log('model.sendRequest');
     _this.request = this.CORSRequest('GET', url);
     if (!this.request) {
       throw new Error('CORS not supported');
@@ -17,7 +19,11 @@ function mapModel() {
 
     _this.request.onload = function() {
     var responseText = this.responseText;
-    _this.data= JSON.parse(responseText);
+    _this.data = JSON.parse(responseText);
+    //console.log(_this.itemAdded.notify);
+
+    _this.itemAdded.notify({ data : _this.data });
+
     // var geojson = L.geoJson(json, {
     //   onEachFeature: function (feature, layer) {
     //     layer.bindPopup(feature.properties.name);
@@ -39,11 +45,11 @@ mapModel.prototype = {
   renderMap: function() {
     //var map = L.map('indego-stations').fitBounds(geojson.getBounds());
     var mapTiles = this.tiles;
-    var map = L.map('indego-stations', {
+    this.map = L.map('indego-stations', {
       center: [39.95, -75.15],
       zoom: 13
     });
-    mapTiles.addTo(map)
+    mapTiles.addTo(this.map)
   },
 
   buildTiles: function(json) {
@@ -77,28 +83,42 @@ mapModel.prototype = {
     this.request.onload = function() {
     var responseText = xhr.responseText;
     var json = JSON.parse(responseText);
-    console.log(json);
-    // var geojson = L.geoJson(json, {
-    //   onEachFeature: function (feature, layer) {
-    //     layer.bindPopup(feature.properties.name);
-    //   }
-    // });
-    // var map = L.map('indego-stations').fitBounds(geojson.getBounds());
-    // mapTiles.addTo(map);
-    // geojson.addTo(map);
-
+    console.log('request received');
     }
     this.request.onerror = function() {
       console.log('There was an error!');
     };
   }
-  
 }
+
+
+function Event(sender) {
+    this._sender = sender;
+    this._listeners = [];
+}
+
+Event.prototype = {
+    attach : function (listener) {
+        this._listeners.push(listener);
+    },
+    notify : function (args) {
+        var index;
+
+        for (index = 0; index < this._listeners.length; index += 1) {
+            this._listeners[index](this._sender, args);
+        }
+    }
+};
 
 
 function mapView(model) {
   console.log('mapView');
   this._model = model;
+  var _this = this;
+
+    this._model.itemAdded.attach(function () {
+      _this.drawPoints();
+  });
 }
 
 mapView.prototype = {
@@ -108,6 +128,13 @@ mapView.prototype = {
   },
 
   drawPoints: function() {
+        var geojson = L.geoJson(this._model.data, {
+      onEachFeature: function (feature, layer) {
+        layer.bindPopup(feature.properties.name);
+      }
+    });
+console.log(this._model);
+    geojson.addTo(this._model.map);
   }
 }
 
