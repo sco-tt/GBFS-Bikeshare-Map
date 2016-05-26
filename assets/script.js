@@ -142,7 +142,7 @@ MapView.prototype = {
       var address = stations[i].properties.addressStreet;
       var docksAvailable = stations[i].properties.docksAvailable;
       var bikesAvailable = stations[i].properties.bikesAvailable;
-      var obj = {name: name};
+      var obj = {name: name, bikesAvailable: bikesAvailable, docksAvailable: docksAvailable};
       stationData.push(obj);
     }
     console.log(stationData);

@@ -1,9 +1,11 @@
+/**
+ * Full Page Map
+ */
 body {
   padding: 0;
   margin: 0;
 }
-
-html, body, #indego-stations, .stations-list {
+html, body, #indego-stations {
   height: 100%;
 }
 
@@ -13,12 +15,21 @@ html, body, #indego-stations, .stations-list {
   position: absolute;
   z-index: 1;
 }
-
-.stations-list {
+.list {
+  background: red;
+}
+.list__row {
+  height: 100%;
   position: absolute;
   right: 0;
   top: 0;
   z-index: 2;
   overflow-y: scroll;
   list-style-type: none;
+  background: rgba(38, 38, 38, 0.45);
+  min-width: 25%;
+  margin: 0;
+}
+.list__item {
+  margin: 0 0 10px;
 }
