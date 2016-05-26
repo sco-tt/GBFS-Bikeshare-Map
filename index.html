@@ -1,23 +1,24 @@
 <!doctype html>
 <html>
 <head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.1.1/normalize.css">
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.css" />
-	<!--[if lte IE 8]>
-     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.ie.css" />
- 	<![endif]-->
- 	<style type="text/css">
-		body {
-			padding: 0;
-			margin: 0;
-		}
-
-		html, body, #indego-stations {
-			height: 100%;
-		}
- 	</style>
-	<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
-<body>
-<div id="indego-stations"></div>
+		<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.ie.css" />
+		<![endif]-->
+		<link rel="stylesheet" href="assets/style.css">	
+		<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js"></script>
+	</head>
+	<body>
+		<div id="js-timestamp" class="timestamp"></div>
+		<div id="indego-stations"></div>
+		<ul id="js-stations-list" class="stations-list"></ul>
+		<script id="station-template" type="text/x-handlebars-template">​
+		{{#each this}}
+			<li>{{name}}</li>
+		{{/each}}
+		</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
 <script src="assets/script.js"></script>	
 </body>
 </html>

@@ -48,20 +48,19 @@ Event.prototype = {
     if (!this.request) {
       throw new Error('CORS not supported');
     }
-    _this.request.send();
+    this.request.send();
 
-    _this.request.onload = function() {
+    this.request.onload = function() {
       _this.data = JSON.parse(this.responseText);
       _this.itemAdded.notify({ data : _this.data });
     };
     this.request.onerror = function() {
-      console.log('There was an error!');
+      throw new Error('There was an error!');
     };
   };
 } //mapModel
 
 MapModel.prototype = {
-  
   // Draw the Map of Philadelphia
   renderMap: function() {
     var mapTiles = this.tiles;
@@ -99,6 +98,8 @@ function MapView(model) {
 
   this._model.itemAdded.attach(function () {
     _this.drawPoints();
+    _this.writeTime();
+    _this.listStations();
   });
 }
 
@@ -111,10 +112,46 @@ MapView.prototype = {
   drawPoints: function() {
     var geojson = L.geoJson(this._model.data, {
       onEachFeature: function (feature, layer) {
-        layer.bindPopup(feature.properties.name);
+        //console.log(feature.properties);
+        var popup = L.popup()
+          .setContent(
+            '<p>' + feature.properties.name + '<br>' + 
+            'Bikes Available: ' + feature.properties.bikesAvailable + '</br>' + 
+            'Docks Availabe: ' + feature.properties.docksAvailable + 
+            '</p>'
+
+            );
+        layer.bindPopup(popup);
       }
     });
     geojson.addTo(this._model.map);
+  }, 
+  writeTime: function() {
+    var time = new Date();
+    var ts = document.getElementById('js-timestamp');
+    ts.innerHTML = 'Last Updated at ' + time;
+  },
+
+  listStations: function() {
+    
+    var stationData = []; 
+
+    var stations = this._model.data.features;
+    for (var i = 0; i < stations.length; i++) {
+      var name = stations[i].properties.name;
+      var address = stations[i].properties.addressStreet;
+      var docksAvailable = stations[i].properties.docksAvailable;
+      var bikesAvailable = stations[i].properties.bikesAvailable;
+      var obj = {name: name};
+      stationData.push(obj);
+    }
+    console.log(stationData);
+
+    var templateScript = document.getElementById('station-template').innerHTML;
+    var theTemplate = Handlebars.compile(templateScript); 
+    var stationList = document.getElementById('js-stations-list');
+    console.log(theTemplate(stationData));
+    stationList.innerHTML = theTemplate(stationData);
   }
 };
 
