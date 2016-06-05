@@ -6,37 +6,65 @@ function MapModel() {
   var _this = this;
 
   this.data = {};
+  this.tempdata = [];
   this.feedsList = {};
 
   this.init = function(systemName, url) {
     this.getJSON(url).then(function(response) {
-     _this.getStationFeeds(systemName, response);
+      console.log('station feeds');
+      _this.getStationFeeds(systemName, response, ['station_information', 'station_status']);
     }).then(function() {
-      _this.getStationData(systemName, _this.feedsList);
-    }).catch(function(error) {
+      console.log('station data');
+      //_this.getStationData(systemName, _this.feedsList);
+      return Promise.all(
+       _this.feedsList.map(function(obj) {
+        _this.getJSON(obj.url);
+      })
+       );
+
+    }).then(function(data) {
+      console.log(data);
+    })
+    .catch(function(error) {
       console.error('Failed!', error);
     });
   };
 
   this.getStationData = function(systemName, feedsList) {
-    var sequence = Promise.resolve();
-    // Loop through our chapter urls
-    feedsList.forEach(function(url){
-       sequence = sequence.then(function() {
-        console.log(url);
-        return _this.getJSON(url);
-      }).then(function(feed) {
-        console.log(feed);
-      });
-    }, Promise.resolve());
-        // Add these actions to the end of the sequence
-    //     sequence = sequence.then(function(url) {
-    //       console.log(url);
-    //       return this.getJSON(url);
-    //     }).then(function(feed) {
-    //       console.log(feed);
-    //     });
+    console.log(feedsList);
+
+    // console.log('getStationData call');
+    // var sequence = Promise.resolve();
+    // feedsList.forEach(function(obj){
+    //   var url = obj.url;
+    //    sequence = sequence.then(function() {
+    //     return _this.getJSON(url);
+    //   }).then(function(feed) {
+    //     _this.tempdata.push(feed);
+    //   });
     // });
+
+
+    // feedsList.reduce(function(obj){
+    //   var url = obj.url;
+    //    return sequence.then(function() {
+    //     return _this.getJSON(url);
+    //   }).then(function(feed) {
+    //     _this.tempdata.push(feed);
+    //   });
+    // }, Promise.resolve());
+
+    return Promise.all(
+     feedsList.map(function(obj) {
+      _this.getJSON(obj.url);
+    })
+     );
+
+
+  };
+
+  this.combineData = function(tempData) {
+    console.log(_this.tempdata);
   };
 
 
@@ -59,7 +87,7 @@ MapModel.prototype = {
       } else {
         reject(Error('CORS Not Supported in this browser'));
       }
-        
+      
       req.onload = function() {
         if (req.status === 200) {
           resolve(req.response);
@@ -83,14 +111,15 @@ MapModel.prototype = {
     return this.sendRequest(url).then(JSON.parse);
   },
   
-  getStationFeeds: function(systemName, feedsListObj) {
-    var stationFeeds = [];
+  getStationFeeds: function(systemName, feedsListObj, feedsToExtract) {
+    console.log('getStationFeeds prototype');
     var feeds = feedsListObj.data.en.feeds;
+    var stationFeeds = [];
     for (var i = 0; i < feeds.length; ++i) {
-      if (feeds[i]['name'] === 'station_status') {
-        stationFeeds.push(feeds[i]['url']);
-      } else if (feeds[i]['name'] === 'station_information') {
-        stationFeeds.push(feeds[i]['url']);
+      for (var j = 0; j < feedsToExtract.length; j++) {
+        if (feeds[i]['name'].indexOf(feedsToExtract[j]) > -1) {
+          stationFeeds.push(feeds[i])
+        }  
       }
     }
     this.feedsList = stationFeeds;
@@ -104,7 +133,7 @@ MapModel.prototype = {
   //     for (var feed in feedsList ) {
   //       this.data[systemName] = this.getJSON(feedsList[feed]);
   //     }
-      
+  
   // }
 
 };
