@@ -9,66 +9,30 @@ function MapModel() {
   this.tempdata = [];
   this.feedsList = {};
 
+
   this.init = function(systemName, url) {
+    _this.getData(systemName, url);
+  };
+
+  this.getData = function(systemName, url) {
     this.getJSON(url).then(function(response) {
-      console.log('station feeds');
       _this.getStationFeeds(systemName, response, ['station_information', 'station_status']);
-    }).then(function() {
-      console.log('station data');
-      //_this.getStationData(systemName, _this.feedsList);
       return Promise.all(
        _this.feedsList.map(function(obj) {
-        _this.getJSON(obj.url);
+        return _this.getJSON(obj.url);
       })
-       );
-
+     );
     }).then(function(data) {
-      console.log(data);
+      data.forEach(function(obj2) {
+        _this.tempdata.push(obj2);
+      });
+    }).then(function() {
+      console.log(_this.tempdata);
     })
     .catch(function(error) {
       console.error('Failed!', error);
     });
   };
-
-  this.getStationData = function(systemName, feedsList) {
-    console.log(feedsList);
-
-    // console.log('getStationData call');
-    // var sequence = Promise.resolve();
-    // feedsList.forEach(function(obj){
-    //   var url = obj.url;
-    //    sequence = sequence.then(function() {
-    //     return _this.getJSON(url);
-    //   }).then(function(feed) {
-    //     _this.tempdata.push(feed);
-    //   });
-    // });
-
-
-    // feedsList.reduce(function(obj){
-    //   var url = obj.url;
-    //    return sequence.then(function() {
-    //     return _this.getJSON(url);
-    //   }).then(function(feed) {
-    //     _this.tempdata.push(feed);
-    //   });
-    // }, Promise.resolve());
-
-    return Promise.all(
-     feedsList.map(function(obj) {
-      _this.getJSON(obj.url);
-    })
-     );
-
-
-  };
-
-  this.combineData = function(tempData) {
-    console.log(_this.tempdata);
-  };
-
-
-
 
 } //mapModel
 
@@ -118,7 +82,7 @@ MapModel.prototype = {
     for (var i = 0; i < feeds.length; ++i) {
       for (var j = 0; j < feedsToExtract.length; j++) {
         if (feeds[i]['name'].indexOf(feedsToExtract[j]) > -1) {
-          stationFeeds.push(feeds[i])
+          stationFeeds.push(feeds[i]);
         }  
       }
     }
