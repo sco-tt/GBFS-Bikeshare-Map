@@ -6,28 +6,29 @@ function MapModel() {
   var _this = this;
 
   this.data = {};
-  this.tempdata = [];
+  this.tempData = [];
   this.feedsList = {};
 
 
   this.init = function(systemName, url) {
+    _this.data[systemName] = {};
     _this.getData(systemName, url);
   };
 
   this.getData = function(systemName, url) {
-    this.getJSON(url).then(function(response) {
+    _this.getJSON(url).then(function(response) {
       _this.getStationFeeds(systemName, response, ['station_information', 'station_status']);
       return Promise.all(
-       _this.feedsList.map(function(obj) {
-        return _this.getJSON(obj.url);
+        _this.feedsList.map(function(obj) {
+          return _this.getJSON(obj.url);
       })
-     );
+     ); 
     }).then(function(data) {
-      data.forEach(function(obj2) {
-        _this.tempdata.push(obj2);
+      data.forEach(function(respObj) {
+        _this.tempData.push(respObj);
       });
     }).then(function() {
-      console.log(_this.tempdata);
+      _this.mergeData(_this.tempData);
     })
     .catch(function(error) {
       console.error('Failed!', error);
@@ -88,6 +89,30 @@ MapModel.prototype = {
     }
     this.feedsList = stationFeeds;
   }, 
+
+  mergeData: function(tempData) {
+    var geoJSON = {};
+    geoJSON['features'] = {};
+    console.log(geoJSON);
+    var stationInformation;
+    var stationStatus;
+
+    if (tempData[0].data.stations[0].lat) {
+      stationInformation = tempData[0].data.stations;
+      stationStatus = tempData[1].data.stations;
+    } else if (tempData[1].data.stations[0].lat ){
+      stationInformation = tempData[1].data.stations;
+      stationStatus = tempData[0].data.stations;
+    }
+
+    for (var i = 0; i < stationInformation.length; ++i) {
+      console.log(stationInformation[i]);
+         geoJSON.features[i].geometry.coordinates.push([stationInformation[i].data.stations.lat,]);
+
+    }
+
+    
+  }
 
   // getStationData: function(systemName, feedsList) {
   //   console.log('this is getStationData');
