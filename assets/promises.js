@@ -91,9 +91,11 @@ MapModel.prototype = {
   }, 
 
   mergeData: function(tempData) {
-    var geoJSON = {};
-    geoJSON['features'] = {};
-    console.log(geoJSON);
+    var geoJSON = {
+      'features' : [], 
+      'type' : 'FeatureCollection'
+    };
+    
     var stationInformation;
     var stationStatus;
 
@@ -105,26 +107,39 @@ MapModel.prototype = {
       stationStatus = tempData[0].data.stations;
     }
 
-    for (var i = 0; i < stationInformation.length; ++i) {
-      console.log(stationInformation[i]);
-         geoJSON.features[i].geometry.coordinates.push([stationInformation[i].data.stations.lat,]);
+  for (var i = 0; i < stationInformation.length; ++i) {
+    var geoObj = {
+      'geometry' : {
+        'coordinates' : [stationInformation[i].lon, stationInformation[i].lat],
+        'type' : 'Point'
+      }, 
+      'properties' : {
+        'name' : stationInformation[i].name,
+        'addressStreet' : stationInformation[i].address,
+        'station_id' : stationInformation[i].station_id
 
+      },
+      'type' : 'Feature'
+    };
+    for (var j = 0; j < stationStatus.length; ++j) {
+      if (stationStatus[j].station_id === geoObj.properties.station_id) {
+        geoObj.properties.last_reported = stationStatus[j].last_reported;
+        geoObj.properties.num_bikes_available = stationStatus[j].num_bikes_available;
+        geoObj.properties.num_docks_available = stationStatus[j].num_docks_available;
+        break;
+      }
     }
+    //localGeoObj.geometry.coordinates = [1,2];
 
-    
+    geoJSON.features.push(geoObj); 
+
   }
 
-  // getStationData: function(systemName, feedsList) {
-  //   console.log('this is getStationData');
-  //   console.log(feedsList);
-  //   var feedsList = feedsList[systemName];
-  //   console.log(feedsList);
-  //     for (var feed in feedsList ) {
-  //       this.data[systemName] = this.getJSON(feedsList[feed]);
-  //     }
-  
-  // }
+  console.log('target geoJSON, after chnages');
+  console.log(JSON.stringify(geoJSON));
 
+    
+}
 };
 
 var model = new MapModel();
