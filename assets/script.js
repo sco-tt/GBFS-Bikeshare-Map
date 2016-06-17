@@ -1,5 +1,5 @@
 /* jshint devel: true */
-/* globals L */
+/* globals L, Handlebars */
 
 'use strict';
 
@@ -41,15 +41,18 @@ function MapModel() {
       maxZoom: 19
     }); 
   this.dataSet = new Event(this);
+  this.activeSystem = null;
 
 
   this.init = function(systemName, url) {
     _this.data[systemName] = {};
     _this.getData(systemName, url);
+    _this.activeSystem = systemName;
   };
 
   this.getData = function(systemName, url) {
     _this.getJSON(url).then(function(response) {
+      // To DO: Move station feeds to model
       _this.getStationFeeds(systemName, response, ['station_information', 'station_status']);
       return Promise.all(
         _this.feedsList.map(function(obj) {
@@ -61,8 +64,8 @@ function MapModel() {
         _this.tempData.push(respObj);
       });
     }).then(function() {
-      _this.mergeData(_this.tempData);
-      _this.dataSet.notify({ data : _this.data });
+      _this.mergeData(_this.tempData, systemName);
+      _this.dataSet.notify({ data : _this.data[systemName] });
     })
     .catch(function(error) {
       console.error('Failed!', error);
@@ -121,7 +124,6 @@ MapModel.prototype = {
   },
   
   getStationFeeds: function(systemName, feedsListObj, feedsToExtract) {
-    console.log('getStationFeeds prototype');
     var feeds = feedsListObj.data.en.feeds;
     var stationFeeds = [];
     for (var i = 0; i < feeds.length; ++i) {
@@ -134,7 +136,7 @@ MapModel.prototype = {
     this.feedsList = stationFeeds;
   }, 
 
-  mergeData: function(tempData) {
+  mergeData: function(tempData, systemName) {
     var geoJSON = {
       'features' : [], 
       'type' : 'FeatureCollection'
@@ -183,7 +185,7 @@ MapModel.prototype = {
       }
       geoJSON.features.push(geoObj); 
     }
-    this.data = geoJSON;
+    this.data[systemName] = geoJSON;
   }
 };
 
@@ -208,14 +210,15 @@ MapView.prototype = {
     this._model.renderMap();
     // this._model.sendRequest(this._model.url);
     //this._model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
-    //this._model.init('pronto','https://gbfs.prontocycleshare.com/gbfs/gbfs.json');
+    this._model.init('pronto','https://gbfs.prontocycleshare.com/gbfs/gbfs.json');
     //this._model.init('bcycle_boulder','https://gbfs.bcycle.com/bcycle_boulder/gbfs.json');
-    this._model.init('monash_bike_share', 'https://monashbikeshare.com/opendata/gbfs.json');
+    //this._model.init('monash_bike_share', 'https://monashbikeshare.com/opendata/gbfs.json');
 
   },
 
   drawPoints: function() {
-    var geojson = L.geoJson(this._model.data, {
+    console.log(this._model.data);
+    var geojson = L.geoJson(this._model.data[this._model.activeSystem], {
       onEachFeature: function (feature, layer) {
         console.log(feature.properties);
         var popup = L.popup()
@@ -248,7 +251,12 @@ MapView.prototype = {
       var address = stations[i].properties.addressStreet;
       var docksAvailable = stations[i].properties.docksAvailable;
       var bikesAvailable = stations[i].properties.bikesAvailable;
-      var obj = {name: name, bikesAvailable: bikesAvailable, docksAvailable: docksAvailable};
+      var obj = { 
+                  name: name, 
+                  bikesAvailable: bikesAvailable, 
+                  docksAvailable: docksAvailable, 
+                  address: address
+                };
       stationData.push(obj);
     }
     console.log(stationData);
@@ -263,8 +271,6 @@ MapView.prototype = {
 
 
 function MapController (model, view) {
-  console.log('mapController');
-  console.log(model.tiles);
   this._model = model;
   this._view = view;
   var _this = this;
