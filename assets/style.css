@@ -5,7 +5,7 @@ body {
   padding: 0;
   margin: 0;
 }
-html, body, #indego-stations {
+html, body, #js-stations-map {
   height: 100%;
 }
 

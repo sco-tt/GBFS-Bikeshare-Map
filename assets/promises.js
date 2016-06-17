@@ -1,6 +1,34 @@
 /* jshint devel: true */
+/* globals L */
 
 'use strict';
+
+/**
+ * Events
+ */
+
+
+ function Event(sender) {
+  this._sender = sender;
+  this._listeners = [];
+}
+
+Event.prototype = {
+  attach : function (listener) {
+    this._listeners.push(listener);
+  },
+  notify : function (args) {
+    var index;
+    for (index = 0; index < this._listeners.length; index += 1) {
+      this._listeners[index](this._sender, args);
+    }
+  }
+};
+
+/**
+ * Model 
+ */
+
 function MapModel() {
   console.log('mapModel');
   var _this = this;
@@ -8,6 +36,11 @@ function MapModel() {
   this.data = {};
   this.tempData = [];
   this.feedsList = {};
+  this.tiles = L.tileLayer(
+    'http://a.tiles.mapbox.com/v3/lyzidiamond.map-ietb6srb/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }); 
+  this.dataSet = new Event(this);
 
 
   this.init = function(systemName, url) {
@@ -29,6 +62,7 @@ function MapModel() {
       });
     }).then(function() {
       _this.mergeData(_this.tempData);
+      _this.dataSet.notify({ data : _this.data });
     })
     .catch(function(error) {
       console.error('Failed!', error);
@@ -38,6 +72,16 @@ function MapModel() {
 } //mapModel
 
 MapModel.prototype = {
+  
+  renderMap: function() {
+    var mapTiles = this.tiles;
+    this.map = L.map('js-stations-map', {
+      center: [39.95, -75.15],
+      zoom: 13
+    });
+    mapTiles.addTo(this.map);
+  },
+
   sendRequest: function(url) {
     return new Promise(function(resolve, reject) {
       var req = new XMLHttpRequest();
@@ -135,12 +179,100 @@ MapModel.prototype = {
 
   }
 
+  this.data = geoJSON;
+
   console.log('target geoJSON, after chnages');
-  console.log(JSON.stringify(geoJSON));
+  console.log(geoJSON);
 
     
 }
 };
 
-var model = new MapModel();
-model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
+/**
+ * View 
+ */
+
+function MapView(model) {
+  console.log('MapView');
+  this._model = model;
+  var _this = this;
+
+  this._model.dataSet.attach(function () {
+    _this.drawPoints();
+    // _this.writeTime();
+    // _this.listStations();
+  });
+}
+
+MapView.prototype = {
+  init: function() {
+    this._model.renderMap();
+    // this._model.sendRequest(this._model.url);
+    this._model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
+  },
+
+  drawPoints: function() {
+    var geojson = L.geoJson(this._model.data, {
+      onEachFeature: function (feature, layer) {
+        //console.log(feature.properties);
+        var popup = L.popup()
+          .setContent(
+            '<p>' + feature.properties.name + '<br>' + 
+            'Bikes Available: ' + feature.properties.bikesAvailable + '</br>' + 
+            'Docks Availabe: ' + feature.properties.docksAvailable + 
+            '</p>'
+
+            );
+        layer.bindPopup(popup);
+      }
+    });
+    geojson.addTo(this._model.map);
+  }, 
+  writeTime: function() {
+    var time = new Date();
+    var ts = document.getElementById('js-timestamp');
+    ts.innerHTML = 'Last Updated at ' + time;
+  },
+
+  listStations: function() {
+    
+    var stationData = []; 
+
+    var stations = this._model.data.features;
+    for (var i = 0; i < stations.length; i++) {
+      var name = stations[i].properties.name;
+      var address = stations[i].properties.addressStreet;
+      var docksAvailable = stations[i].properties.docksAvailable;
+      var bikesAvailable = stations[i].properties.bikesAvailable;
+      var obj = {name: name, bikesAvailable: bikesAvailable, docksAvailable: docksAvailable};
+      stationData.push(obj);
+    }
+    console.log(stationData);
+
+    var templateScript = document.getElementById('station-template').innerHTML;
+    var theTemplate = Handlebars.compile(templateScript); 
+    var stationList = document.getElementById('js-stations-list');
+    console.log(theTemplate(stationData));
+    stationList.innerHTML = theTemplate(stationData);
+  }
+};
+
+
+function MapController (model, view) {
+  console.log('mapController');
+  console.log(model.tiles);
+  this._model = model;
+  this._view = view;
+  var _this = this;
+
+}
+
+
+(function(){
+  var model = new MapModel();
+  var view = new MapView(model);
+  new MapController(model, view);
+  // Show the Map
+  view.init();
+
+})();
