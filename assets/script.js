@@ -126,7 +126,7 @@ MapModel.prototype = {
     var stationFeeds = [];
     for (var i = 0; i < feeds.length; ++i) {
       for (var j = 0; j < feedsToExtract.length; j++) {
-        if (feeds[i]['name'].indexOf(feedsToExtract[j]) > -1) {
+        if (feeds[i].name.indexOf(feedsToExtract[j]) > -1) {
           stationFeeds.push(feeds[i]);
         }  
       }
@@ -151,41 +151,40 @@ MapModel.prototype = {
       stationStatus = tempData[0].data.stations;
     }
 
-  for (var i = 0; i < stationInformation.length; ++i) {
-    var geoObj = {
-      'geometry' : {
-        'coordinates' : [stationInformation[i].lon, stationInformation[i].lat],
-        'type' : 'Point'
-      }, 
-      'properties' : {
-        'name' : stationInformation[i].name,
-        'addressStreet' : stationInformation[i].address,
-        'station_id' : stationInformation[i].station_id
-
-      },
-      'type' : 'Feature'
-    };
-    for (var j = 0; j < stationStatus.length; ++j) {
-      if (stationStatus[j].station_id === geoObj.properties.station_id) {
-        geoObj.properties.last_reported = stationStatus[j].last_reported;
-        geoObj.properties.num_bikes_available = stationStatus[j].num_bikes_available;
-        geoObj.properties.num_docks_available = stationStatus[j].num_docks_available;
-        break;
+    for (var i = 0; i < stationInformation.length; ++i) {
+      /** 
+       * Delete stations with lat/long of 0
+       * This applies to Boulder 'Purgatory Station'
+      */
+      if (stationInformation[i].lon === 0 && stationInformation[i].lat === 0) {
+        delete stationInformation[i];
+        continue;
       }
+      var geoObj = {
+        'geometry' : {
+          'coordinates' : [stationInformation[i].lon, stationInformation[i].lat],
+          'type' : 'Point'
+        }, 
+        'properties' : {
+          'name' : stationInformation[i].name,
+          'addressStreet' : stationInformation[i].address,
+          'station_id' : stationInformation[i].station_id
+
+        },
+        'type' : 'Feature'
+      };
+      for (var j = 0; j < stationStatus.length; ++j) {
+        if (stationStatus[j].station_id === geoObj.properties.station_id) {
+          geoObj.properties.last_reported = stationStatus[j].last_reported;
+          geoObj.properties.num_bikes_available = stationStatus[j].num_bikes_available;
+          geoObj.properties.num_docks_available = stationStatus[j].num_docks_available;
+          break;
+        }
+      }
+      geoJSON.features.push(geoObj); 
     }
-    //localGeoObj.geometry.coordinates = [1,2];
-
-    geoJSON.features.push(geoObj); 
-
+    this.data = geoJSON;
   }
-
-  this.data = geoJSON;
-
-  console.log('target geoJSON, after chnages');
-  console.log(geoJSON);
-
-    
-}
 };
 
 /**
@@ -208,7 +207,11 @@ MapView.prototype = {
   init: function() {
     this._model.renderMap();
     // this._model.sendRequest(this._model.url);
-    this._model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
+    //this._model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
+    //this._model.init('pronto','https://gbfs.prontocycleshare.com/gbfs/gbfs.json');
+    //this._model.init('bcycle_boulder','https://gbfs.bcycle.com/bcycle_boulder/gbfs.json');
+    this._model.init('monash_bike_share', 'https://monashbikeshare.com/opendata/gbfs.json');
+
   },
 
   drawPoints: function() {
@@ -265,7 +268,6 @@ function MapController (model, view) {
   this._model = model;
   this._view = view;
   var _this = this;
-
 }
 
 
