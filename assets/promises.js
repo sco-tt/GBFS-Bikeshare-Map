@@ -214,12 +214,12 @@ MapView.prototype = {
   drawPoints: function() {
     var geojson = L.geoJson(this._model.data, {
       onEachFeature: function (feature, layer) {
-        //console.log(feature.properties);
+        console.log(feature.properties);
         var popup = L.popup()
           .setContent(
             '<p>' + feature.properties.name + '<br>' + 
-            'Bikes Available: ' + feature.properties.bikesAvailable + '</br>' + 
-            'Docks Availabe: ' + feature.properties.docksAvailable + 
+            'Bikes Available: ' + feature.properties.num_bikes_available + '</br>' + 
+            'Docks Availabe: ' + feature.properties.num_docks_available + 
             '</p>'
 
             );
