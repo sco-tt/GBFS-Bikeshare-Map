@@ -76,8 +76,8 @@ MapModel.prototype = {
   renderMap: function() {
     var mapTiles = this.tiles;
     this.map = L.map('js-stations-map', {
-      center: [39.95, -75.15],
-      zoom: 13
+      center: [39.95, 0],
+      zoom: 4
     });
     mapTiles.addTo(this.map);
   },
@@ -227,6 +227,7 @@ MapView.prototype = {
       }
     });
     geojson.addTo(this._model.map);
+    this._model.map.fitBounds(geojson.getBounds());
   }, 
   writeTime: function() {
     var time = new Date();
