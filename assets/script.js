@@ -46,12 +46,19 @@ function MapModel() {
   this.first = function(url) {
     this.ajax(url).then(function(response) {
       var arr = response.split('\n');
+      console.log(arr);
 
       var obj = {};
       var headers = arr[0].split(',');
-      
+      console.log(headers); 
       for (var i = 1; i < arr.length; ++i) {
-        console.log(arr[i]);
+        var subArr = arr[i].split(',');
+        var subObj = {};
+        // console.log(subArr);
+        for (var j = 0; j < subArr.length; ++j) {
+          subObj[headers[j]] = subArr[j];
+        }
+        console.log(subObj);
       }
     });
   };
