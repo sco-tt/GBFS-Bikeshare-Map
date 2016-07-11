@@ -30,7 +30,6 @@ Event.prototype = {
  */
 
 function MapModel() {
-  console.log('mapModel');
   var _this = this;
 
   this.data = {};
@@ -42,7 +41,20 @@ function MapModel() {
     }); 
   this.dataSet = new Event(this);
   this.activeSystem = null;
+  this.systemsCSV = 'https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv';
 
+  this.first = function(url) {
+    this.ajax(url).then(function(response) {
+      var arr = response.split('\n');
+
+      var obj = {};
+      var headers = arr[0].split(',');
+      
+      for (var i = 1; i < arr.length; ++i) {
+        console.log(arr[i]);
+      }
+    });
+  };
 
   this.init = function(systemName, url) {
     _this.data[systemName] = {};
@@ -51,12 +63,12 @@ function MapModel() {
   };
 
   this.getData = function(systemName, url) {
-    _this.getJSON(url).then(function(response) {
+    _this.ajax(url, 'json').then(function(response) {
       // To DO: Move station feeds to model
       _this.getStationFeeds(systemName, response, ['station_information', 'station_status']);
       return Promise.all(
         _this.feedsList.map(function(obj) {
-          return _this.getJSON(obj.url);
+          return _this.ajax(obj.url, 'json');
       })
      ); 
     }).then(function(data) {
@@ -92,12 +104,12 @@ MapModel.prototype = {
       // Cross Browser checks
       // http://www.telerik.com/blogs/using-cors-with-all-modern-browsers
       if ('withCredentials' in req) {
-        req.open('GET', url, true);
+          req.open('GET', url, true);
       } else if (typeof XDomainRequest !== 'undefined') {
-        req = new XDomainRequest();
-        req.open('GET', url);
+          req = new XDomainRequest();
+          req.open('GET', url);
       } else {
-        reject(Error('CORS Not Supported in this browser'));
+          reject(Error('CORS Not Supported in this browser'));
       }
       
       req.onload = function() {
@@ -119,10 +131,10 @@ MapModel.prototype = {
     });
   },
 
-  getJSON: function(url) {
-    return this.sendRequest(url).then(JSON.parse);
+  ajax: function(url, isJSON) {
+    return (isJSON) ? this.sendRequest(url).then(JSON.parse) : this.sendRequest(url);
   },
-  
+
   getStationFeeds: function(systemName, feedsListObj, feedsToExtract) {
     var feeds = feedsListObj.data.en.feeds;
     var stationFeeds = [];
@@ -175,6 +187,7 @@ MapModel.prototype = {
         },
         'type' : 'Feature'
       };
+      
       for (var j = 0; j < stationStatus.length; ++j) {
         if (stationStatus[j].station_id === geoObj.properties.station_id) {
           geoObj.properties.last_reported = stationStatus[j].last_reported;
@@ -194,7 +207,6 @@ MapModel.prototype = {
  */
 
 function MapView(model) {
-  console.log('MapView');
   this._model = model;
   var _this = this;
 
@@ -214,13 +226,13 @@ MapView.prototype = {
     //this._model.init('bcycle_boulder','https://gbfs.bcycle.com/bcycle_boulder/gbfs.json');
     //this._model.init('monash_bike_share', 'https://monashbikeshare.com/opendata/gbfs.json');
 
+    this._model.first(this._model.systemsCSV);
+
   },
 
   drawPoints: function() {
-    console.log(this._model.data);
     var geojson = L.geoJson(this._model.data[this._model.activeSystem], {
       onEachFeature: function (feature, layer) {
-        console.log(feature.properties);
         var popup = L.popup()
           .setContent(
             '<p>' + feature.properties.name + '<br>' + 
@@ -280,7 +292,7 @@ function MapController (model, view) {
 (function(){
   var model = new MapModel();
   var view = new MapView(model);
-  new MapController(model, view);
+  var controller = new MapController(model, view);
   // Show the Map
   view.init();
 
