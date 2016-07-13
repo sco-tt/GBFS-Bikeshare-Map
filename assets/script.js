@@ -40,13 +40,24 @@ function MapModel() {
       maxZoom: 19
     }); 
   this.dataSet = new Event(this);
+  this.systemSet = new Event(this);
   this.activeSystem = null;
   this.systemsCSV = 'https://raw.githubusercontent.com/NABSA/gbfs/master/systems.csv';
 
   this.first = function(url) {
     this.ajax(url).then(function(response) {
-      var data = Papa.parse(response);
-      console.log(data);
+      var csvData = Papa.parse(response);
+      csvData = csvData.data;
+      _this.data.systemsObj = [];
+      for (var i = 1; i < csvData.length; ++i) {
+        var subObj = {};
+        for (var j = 0; j < csvData[i].length; ++j) {
+          subObj[csvData[0][j]] = csvData[i][j];
+        }
+        _this.data.systemsObj.push(subObj);
+      }
+      console.log(_this.data.systemsObj);
+      _this.systemSet.notify({ data : _this.data.systemsObj });
     });
   };
 
@@ -210,6 +221,10 @@ function MapView(model) {
     // _this.writeTime();
     // _this.listStations();
   });
+
+  this._model.systemSet.attach(function() {
+   _this.listSystems();
+  });
 }
 
 MapView.prototype = {
@@ -248,6 +263,13 @@ MapView.prototype = {
     ts.innerHTML = 'Last Updated at ' + time;
   },
 
+  listSystems: function() {
+    var templateScript = document.getElementById('systems-template').innerHTML;
+    var theTemplate = Handlebars.compile(templateScript); 
+    var systemsList = document.getElementById('js-systems-list');
+    systemsList.innerHTML = theTemplate(this._model.data.systemsObj);
+  },
+
   listStations: function() {
     
     var stationData = []; 
@@ -271,7 +293,6 @@ MapView.prototype = {
     var templateScript = document.getElementById('station-template').innerHTML;
     var theTemplate = Handlebars.compile(templateScript); 
     var stationList = document.getElementById('js-stations-list');
-    console.log(theTemplate(stationData));
     stationList.innerHTML = theTemplate(stationData);
   }
 };
