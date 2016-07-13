@@ -17,9 +17,9 @@
 {{/each}}
 </script>
 <script id="systems-template" type="text/x-handlebars-template">​
-  <select>
+  <select id="js-systems-select">
     {{#each this}}
-      <option>{{Name}}</option>
+      <option value="{{"System ID"}}">{{Name}}</option>
     {{/each}}
   </select>
 </script>

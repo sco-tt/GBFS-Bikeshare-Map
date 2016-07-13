@@ -62,6 +62,7 @@ function MapModel() {
   };
 
   this.init = function(systemName, url) {
+    console.log(_this.data.systemsObj);
     _this.data[systemName] = {};
     _this.getData(systemName, url);
     _this.activeSystem = systemName;
@@ -216,6 +217,11 @@ function MapView(model) {
   this._model = model;
   var _this = this;
 
+  // Events
+  this.systemsWritten = new Event(this);
+  this.systemSelected= new Event(this);
+
+  // Listners
   this._model.dataSet.attach(function () {
     _this.drawPoints();
     // _this.writeTime();
@@ -225,6 +231,19 @@ function MapView(model) {
   this._model.systemSet.attach(function() {
    _this.listSystems();
   });
+
+  this.systemsWritten.attach(function() {
+    _this.systemsSelectEl = document.getElementById('js-systems-select');
+    _this.systemsSelectEl.addEventListener('change', function() {
+      _this._model.activeSystem = this.value;
+     _this.systemSelected.notify(); 
+    });
+  });
+
+  //_this.systemsSelectEl.addEventListener('change', _this.systemSelected.notify(this));
+
+
+
 }
 
 MapView.prototype = {
@@ -268,6 +287,7 @@ MapView.prototype = {
     var theTemplate = Handlebars.compile(templateScript); 
     var systemsList = document.getElementById('js-systems-list');
     systemsList.innerHTML = theTemplate(this._model.data.systemsObj);
+    this.systemsWritten.notify({ data : systemsList });
   },
 
   listStations: function() {
@@ -302,7 +322,19 @@ function MapController (model, view) {
   this._model = model;
   this._view = view;
   var _this = this;
+
+
+  this._view.systemSelected.attach(function () {
+    _this.changeMarkers();
+  });
+
 }
+
+MapController.prototype = {
+    changeMarkers: function () {
+      console.log(this._model.activeSystem);
+    },
+  };
 
 
 (function(){
