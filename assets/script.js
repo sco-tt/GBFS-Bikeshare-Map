@@ -33,7 +33,6 @@ function MapModel() {
   var _this = this;
 
   this.data = {};
-  this.tempData = [];
   this.feedsList = {};
   this.tiles = L.tileLayer(
     'http://a.tiles.mapbox.com/v3/lyzidiamond.map-ietb6srb/{z}/{x}/{y}.png', {
@@ -56,29 +55,25 @@ function MapModel() {
         }
         _this.data.systemsObj.push(subObj);
       }
-      console.log(_this.data.systemsObj);
       _this.systemSet.notify({ data : _this.data.systemsObj });
     });
   };
 
   this.init = function() {
-
-    console.log('Active system: ' + this.activeSystem);
-    var systemName = this.data.activeSystem;
-    console.log('Model active system: ' + this.activeSystem);
+    var url;
     for (var i = 0; i < _this.data.systemsObj.length; ++i) {
       if (this.activeSystem === this.data.systemsObj[i]['System ID']) {
         console.log('Match with ' + this.data.systemsObj[i]['System ID']);
-        var url = this.data.systemsObj[i]['Auto-Discovery URL']
+        url = this.data.systemsObj[i]['Auto-Discovery URL'];
       }
     }
      this.data[this.activeSystem] = {};
      this.getData(this.activeSystem, url);
-     //this.activeSystem = systemName;
-     console.log('AFter rewrite: ' + this.activeSystem);
   };
 
   this.getData = function(systemName, url) {
+    this.tempData = [];
+
     _this.ajax(url, 'json').then(function(response) {
       // To DO: Move station feeds to model
       _this.getStationFeeds(systemName, response, ['station_information', 'station_status']);
@@ -98,6 +93,59 @@ function MapModel() {
     .catch(function(error) {
       console.error('Failed!', error);
     });
+  };
+
+  this.mergeData = function(tempData, systemName) {
+    var geoJSON = {
+      'features' : [], 
+      'type' : 'FeatureCollection'
+    };
+    
+    var stationInformation;
+    var stationStatus;
+
+    if (tempData[0].data.stations[0].lat) {
+      stationInformation = tempData[0].data.stations;
+      stationStatus = tempData[1].data.stations;
+    } else if (tempData[1].data.stations[0].lat ){
+      stationInformation = tempData[1].data.stations;
+      stationStatus = tempData[0].data.stations;
+    }
+
+    for (var i = 0; i < stationInformation.length; ++i) {
+      /** 
+       * Delete stations with lat/long of 0
+       * This applies to Boulder 'Purgatory Station'
+      */
+      if (stationInformation[i].lon === 0 && stationInformation[i].lat === 0) {
+        delete stationInformation[i];
+        continue;
+      }
+      var geoObj = {
+        'geometry' : {
+          'coordinates' : [stationInformation[i].lon, stationInformation[i].lat],
+          'type' : 'Point'
+        }, 
+        'properties' : {
+          'name' : stationInformation[i].name,
+          'addressStreet' : stationInformation[i].address,
+          'station_id' : stationInformation[i].station_id
+
+        },
+        'type' : 'Feature'
+      };
+      
+      for (var j = 0; j < stationStatus.length; ++j) {
+        if (stationStatus[j].station_id === geoObj.properties.station_id) {
+          geoObj.properties.last_reported = stationStatus[j].last_reported;
+          geoObj.properties.num_bikes_available = stationStatus[j].num_bikes_available;
+          geoObj.properties.num_docks_available = stationStatus[j].num_docks_available;
+          break;
+        }
+      }
+      geoJSON.features.push(geoObj); 
+    }
+    this.data[this.activeSystem] = geoJSON;
   };
 
 } //mapModel
@@ -162,62 +210,8 @@ MapModel.prototype = {
       }
     }
     this.feedsList = stationFeeds;
-  }, 
-
-  mergeData: function(tempData, systemName) {
-    var geoJSON = {
-      'features' : [], 
-      'type' : 'FeatureCollection'
-    };
-    
-    var stationInformation;
-    var stationStatus;
-
-    if (tempData[0].data.stations[0].lat) {
-      stationInformation = tempData[0].data.stations;
-      stationStatus = tempData[1].data.stations;
-    } else if (tempData[1].data.stations[0].lat ){
-      stationInformation = tempData[1].data.stations;
-      stationStatus = tempData[0].data.stations;
-    }
-
-    for (var i = 0; i < stationInformation.length; ++i) {
-      /** 
-       * Delete stations with lat/long of 0
-       * This applies to Boulder 'Purgatory Station'
-      */
-      if (stationInformation[i].lon === 0 && stationInformation[i].lat === 0) {
-        delete stationInformation[i];
-        continue;
-      }
-      var geoObj = {
-        'geometry' : {
-          'coordinates' : [stationInformation[i].lon, stationInformation[i].lat],
-          'type' : 'Point'
-        }, 
-        'properties' : {
-          'name' : stationInformation[i].name,
-          'addressStreet' : stationInformation[i].address,
-          'station_id' : stationInformation[i].station_id
-
-        },
-        'type' : 'Feature'
-      };
-      
-      for (var j = 0; j < stationStatus.length; ++j) {
-        if (stationStatus[j].station_id === geoObj.properties.station_id) {
-          geoObj.properties.last_reported = stationStatus[j].last_reported;
-          geoObj.properties.num_bikes_available = stationStatus[j].num_bikes_available;
-          geoObj.properties.num_docks_available = stationStatus[j].num_docks_available;
-          break;
-        }
-      }
-      geoJSON.features.push(geoObj); 
-    }
-    this.data[systemName] = geoJSON;
-  }
+  }   
 };
-
 
 /**
  * View 
@@ -270,8 +264,6 @@ MapView.prototype = {
   },
 
   drawPoints: function() {
-    
-    console.log('Active system in drawpoints: ' + this._model.activeSystem);
     this._model.geojson = L.geoJson(this._model.data[this._model.activeSystem], {
       onEachFeature: function (feature, layer) {
         var popup = L.popup()
@@ -320,7 +312,6 @@ MapView.prototype = {
                 };
       stationData.push(obj);
     }
-    console.log(stationData);
 
     var templateScript = document.getElementById('station-template').innerHTML;
     var theTemplate = Handlebars.compile(templateScript); 
@@ -344,7 +335,6 @@ function MapController (model, view) {
 
 MapController.prototype = {
     changeMarkers: function () {
-      console.log('Controller: ' + this._model.activeSystem);
       this._model.init();
     },
   };
