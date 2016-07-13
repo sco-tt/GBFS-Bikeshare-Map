@@ -61,11 +61,21 @@ function MapModel() {
     });
   };
 
-  this.init = function(systemName, url) {
-    console.log(_this.data.systemsObj);
-    _this.data[systemName] = {};
-    _this.getData(systemName, url);
-    _this.activeSystem = systemName;
+  this.init = function() {
+
+    console.log('Active system: ' + this.activeSystem);
+    var systemName = this.data.activeSystem;
+    console.log('Model active system: ' + this.activeSystem);
+    for (var i = 0; i < _this.data.systemsObj.length; ++i) {
+      if (this.activeSystem === this.data.systemsObj[i]['System ID']) {
+        console.log('Match with ' + this.data.systemsObj[i]['System ID']);
+        var url = this.data.systemsObj[i]['Auto-Discovery URL']
+      }
+    }
+     this.data[this.activeSystem] = {};
+     this.getData(this.activeSystem, url);
+     //this.activeSystem = systemName;
+     console.log('AFter rewrite: ' + this.activeSystem);
   };
 
   this.getData = function(systemName, url) {
@@ -251,7 +261,7 @@ MapView.prototype = {
     this._model.renderMap();
     // this._model.sendRequest(this._model.url);
     //this._model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
-    this._model.init('pronto','https://gbfs.prontocycleshare.com/gbfs/gbfs.json');
+    //this._model.init('pronto','https://gbfs.prontocycleshare.com/gbfs/gbfs.json');
     //this._model.init('bcycle_boulder','https://gbfs.bcycle.com/bcycle_boulder/gbfs.json');
     //this._model.init('monash_bike_share', 'https://monashbikeshare.com/opendata/gbfs.json');
 
@@ -260,7 +270,9 @@ MapView.prototype = {
   },
 
   drawPoints: function() {
-    var geojson = L.geoJson(this._model.data[this._model.activeSystem], {
+    
+    console.log('Active system in drawpoints: ' + this._model.activeSystem);
+    this._model.geojson = L.geoJson(this._model.data[this._model.activeSystem], {
       onEachFeature: function (feature, layer) {
         var popup = L.popup()
           .setContent(
@@ -273,8 +285,8 @@ MapView.prototype = {
         layer.bindPopup(popup);
       }
     });
-    geojson.addTo(this._model.map);
-    this._model.map.fitBounds(geojson.getBounds());
+    this._model.geojson.addTo(this._model.map);
+    this._model.map.fitBounds(this._model.geojson.getBounds());
   }, 
   writeTime: function() {
     var time = new Date();
@@ -332,7 +344,8 @@ function MapController (model, view) {
 
 MapController.prototype = {
     changeMarkers: function () {
-      console.log(this._model.activeSystem);
+      console.log('Controller: ' + this._model.activeSystem);
+      this._model.init();
     },
   };
 
