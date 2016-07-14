@@ -95,7 +95,7 @@ function MapModel() {
     });
   };
 
-  this.mergeData = function(tempData, systemName) {
+  this.mergeData = function(tempData) {
     var geoJSON = {
       'features' : [], 
       'type' : 'FeatureCollection'
@@ -343,7 +343,7 @@ MapController.prototype = {
 (function(){
   var model = new MapModel();
   var view = new MapView(model);
-  var controller = new MapController(model, view);
+  new MapController(model, view);
   // Show the Map
   view.init();
 
