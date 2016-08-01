@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="assets/style.css"> 
 </head>
 <body>
-<div id="js-systems-list"></div>
+<div id="js-systems-list" style="z-index: 999999999; position: fixed; right: 100px; top: 10px;"></div>
 <div id="js-stations-map"></div>
 <script id="station-template" type="text/x-handlebars-template">​
 {{#each this}}
@@ -17,7 +17,8 @@
 {{/each}}
 </script>
 <script id="systems-template" type="text/x-handlebars-template">​
-  <select id="js-systems-select" style="z-index: 999999999; position: fixed; right: 100px; top: 10px;">
+  <select id="js-systems-select">
+  <option default selected value> - Chose a Bike Share - </option>
     {{#each this}}
       <option value="{{"System ID"}}">{{Name}} - {{Location}}</option>
     {{/each}}
