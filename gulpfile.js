@@ -1,11 +1,12 @@
 // include gulp
-var gulp = require('gulp'); 
+var browserify = require('browserify');
+var gulp = require('gulp');
+var source = require('vinyl-source-stream');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 
 // include plug-ins
 var jshint = require('gulp-jshint');
-var browserify = require('gulp-browserify');
 
 
 // JS hint task
@@ -21,12 +22,11 @@ gulp.task('minify', function () {
       .pipe(gulp.dest('build'))
 });
 
-gulp.task('browserify-client', function() {
-  return gulp.src('./src/script/app.js')
-    .pipe(browserify({
-      insertGlobals: true
-    }))
-    .pipe(rename('app-packed.js'))
-    .pipe(gulp.dest('build'));
-    //.pipe(gulp.dest('public/js'));
+gulp.task('browserify', function() {
+    return browserify('./src/scripts/app.js')
+        .bundle()
+        //Pass desired output filename to vinyl-source-stream
+        .pipe(source('app.js'))
+        // Start piping stream to tasks!
+        .pipe(gulp.dest('./build/assets/js'));
 });
