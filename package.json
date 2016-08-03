@@ -1,0 +1,32 @@
+{
+  "name": "gbfs-bike-share-map",
+  "version": "1.0.0",
+  "description": "Visualization of the bike share systems using the  General Bikeshare Feed Specificatio",
+  "main": "gulpfile.js",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-jshint": "^2.0.1",
+    "jshint": "^2.9.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sco-tt/GBFS-Bikeshare-Map.git"
+  },
+  "keywords": [
+    "mapping",
+    "data",
+    "visualization",
+    "bike",
+    "shares"
+  ],
+  "author": "Scott Pinkelman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sco-tt/GBFS-Bikeshare-Map/issues"
+  },
+  "homepage": "https://github.com/sco-tt/GBFS-Bikeshare-Map#readme"
+}
