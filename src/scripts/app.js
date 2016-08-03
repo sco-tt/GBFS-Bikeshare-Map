@@ -1,5 +1,7 @@
 /* jshint devel: true */
 /* globals L, Handlebars, Papa */
+var Handlebars = require('handlebars');
+var Papa = require('papaparse');
 
 'use strict';
 
