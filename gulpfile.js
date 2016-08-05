@@ -16,12 +16,6 @@ gulp.task('jshint', function() {
     .pipe(jshint.reporter('default'));
 });
 
-gulp.task('minify', function () {
-   gulp.src('./src/scripts/app.js')
-      .pipe(uglify())
-      .pipe(gulp.dest('build'))
-});
-
 gulp.task('browserify', function() {
     return browserify('./src/scripts/app.js')
         .bundle()
@@ -30,3 +24,11 @@ gulp.task('browserify', function() {
         // Start piping stream to tasks!
         .pipe(gulp.dest('./build/assets/js'));
 });
+
+gulp.task('minify',['jshint','browserify'], function () {
+   gulp.src('./build/assets/js/app.js')
+      .pipe(uglify())
+      .pipe(rename('app.min.js'))
+      .pipe(gulp.dest('./build/assets/js'))
+});
+
