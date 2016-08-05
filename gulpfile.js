@@ -7,6 +7,8 @@ var source = require('vinyl-source-stream');
 var htmlmin = require('gulp-htmlmin');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
+var browserSync = require('browser-sync').create();
+
 
 // include plug-ins
 var jshint = require('gulp-jshint');
@@ -51,6 +53,13 @@ gulp.task('html', function() {
   return gulp.src('./src/*.html')
     .pipe(htmlmin({collapseWhitespace: true}))
     .pipe(gulp.dest('./build'));
+});
+
+
+// Watch
+gulp.task('serve', function() {
+    gulp.watch('./src/js/*.js', ['js']);
+    gulp.watch('./src/sass/**/*.scss', ['sass']);
 });
 
 
