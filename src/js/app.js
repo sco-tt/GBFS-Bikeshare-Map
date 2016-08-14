@@ -3,6 +3,8 @@ var Papa = require('papaparse');
 var L = require('leaflet');
 'use strict';
 
+L.Icon.Default.imagePath = 'assets/img/leaflet';
+
 /**
  * Events
  */

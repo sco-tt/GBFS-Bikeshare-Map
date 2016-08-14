@@ -8,6 +8,8 @@ var htmlmin = require('gulp-htmlmin');
 var rename = require('gulp-rename');
 var uglify = require('gulp-uglify');
 var browserSync = require('browser-sync').create();
+var imagemin = require('gulp-imagemin');
+
 
 // include plug-ins
 var jshint = require('gulp-jshint');
@@ -27,6 +29,12 @@ gulp.task('_browserify', function() {
         .pipe(source('app.js'))
         // Start piping stream to tasks!
         .pipe(gulp.dest('./build/assets/js'));
+});
+
+gulp.task('_leaflet-images', function(){
+  return gulp.src('node_modules/leaflet/dist/images/*.+(png|jpg|gif|svg)')
+  .pipe(imagemin())
+  .pipe(gulp.dest('./build/assets/img/leaflet'))
 });
 
 // JS tasks
