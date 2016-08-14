@@ -1,12 +1,11 @@
-/* jshint devel: true */
-/* globals L, Handlebars, Papa */
+var Handlebars = require('handlebars');
+var Papa = require('papaparse');
 
 'use strict';
 
 /**
  * Events
  */
-
 
  function Event(sender) {
   this._sender = sender;
@@ -63,7 +62,7 @@ function MapModel() {
     var url;
     for (var i = 0; i < _this.data.systemsObj.length; ++i) {
       if (this.activeSystem === this.data.systemsObj[i]['System ID']) {
-        console.log('Match with ' + this.data.systemsObj[i]['System ID']);
+        // console.log('Match with ' + this.data.systemsObj[i]['System ID']);
         url = this.data.systemsObj[i]['Auto-Discovery URL'];
       }
     }
@@ -253,14 +252,7 @@ function MapView(model) {
 MapView.prototype = {
   init: function() {
     this._model.renderMap();
-    // this._model.sendRequest(this._model.url);
-    //this._model.init('bcycle_indego','https://gbfs.bcycle.com/bcycle_indego/gbfs.json');
-    //this._model.init('pronto','https://gbfs.prontocycleshare.com/gbfs/gbfs.json');
-    //this._model.init('bcycle_boulder','https://gbfs.bcycle.com/bcycle_boulder/gbfs.json');
-    //this._model.init('monash_bike_share', 'https://monashbikeshare.com/opendata/gbfs.json');
-
     this._model.first(this._model.systemsCSV);
-
   },
 
   drawPoints: function() {
@@ -295,7 +287,6 @@ MapView.prototype = {
   },
 
   listStations: function() {
-    
     var stationData = []; 
 
     var stations = this._model.data.features;
