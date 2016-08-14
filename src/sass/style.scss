@@ -1,6 +1,7 @@
 @import 'settings';
 @import '../../node_modules/foundation-sites/scss/foundation.scss';
 @include foundation-everything;
+@import '../../node_modules/leaflet/dist/leaflet.css';
 /**
  * Full Page Map
  */
