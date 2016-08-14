@@ -32,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/sco-tt/GBFS-Bikeshare-Map/issues"
   },
-  "homepage": "https://github.com/sco-tt/GBFS-Bikeshare-Map#readme"
+  "homepage": "https://github.com/sco-tt/GBFS-Bikeshare-Map#readme",
+  "dependencies": {
+    "foundation-sites": "^6.2.3"
+  }
 }

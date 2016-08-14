@@ -1,3 +1,6 @@
+@import 'settings';
+@import '../../node_modules/foundation-sites/scss/foundation.scss';
+@include foundation-everything;
 /**
  * Full Page Map
  */
@@ -8,9 +11,6 @@ body {
 html, body, #js-stations-map {
   height: 100%;
 }
-
-
-
 .timestamp {
   position: absolute;
   z-index: 1;
