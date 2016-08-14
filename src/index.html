@@ -7,8 +7,20 @@
     <![endif]-->
   </head>
   <body>
+  <header class="header">
+  <h1 class="headline">GBFS Bike Share<h1>
+  <ul class="header-subnav">
+    <li><a href="#about">About</a></li>
+    <li><a href="#" class="is-active">Data</li>
+    <li><a href="https://github.com/sco-tt/GBFS-Bikeshare-Map">Source Code</a></li>
+  </ul>
+</header>
+    <div class="row">
+      <div class="small-12 columns">    <div id="js-stations-map"></div>
+</div>
+    </div>
+
     <div id="js-systems-list" style="z-index: 999999999; position: fixed; right: 100px; top: 10px;"></div>
-    <div id="js-stations-map"></div>
     <script id="station-template" type="text/x-handlebars-template">​
     {{#each this}}
       <li class="list__item">{{name}}: <br>Bikes Available: {{bikesAvailable}} | Docks Available: {{docksAvailable}}</li>
