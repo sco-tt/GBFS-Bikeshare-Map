@@ -1,6 +1,6 @@
 var Handlebars = require('handlebars');
 var Papa = require('papaparse');
-
+var L = require('leaflet');
 'use strict';
 
 /**
