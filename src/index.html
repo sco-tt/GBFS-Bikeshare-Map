@@ -1,34 +1,32 @@
 <!doctype html>
 <html>
-<head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.1.1/normalize.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
-  <!--[if lte IE 8]>
-  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.ie.css" />
-  <![endif]-->
-  <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-<div id="js-systems-list" style="z-index: 999999999; position: fixed; right: 100px; top: 10px;"></div>
-<div id="js-stations-map"></div>
-<script id="station-template" type="text/x-handlebars-template">​
-{{#each this}}
-  <li class="list__item">{{name}}: <br>Bikes Available: {{bikesAvailable}} | Docks Available: {{docksAvailable}}</li>
-{{/each}}
-</script>
-<script id="systems-template" type="text/x-handlebars-template">​
-  <select id="js-systems-select">
-  <option default selected value> - Chose a Bike Share - </option>
+  <head>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.ie.css" />
+    <![endif]-->
+  </head>
+  <body>
+    <div id="js-systems-list" style="z-index: 999999999; position: fixed; right: 100px; top: 10px;"></div>
+    <div id="js-stations-map"></div>
+    <script id="station-template" type="text/x-handlebars-template">​
     {{#each this}}
-      <option value="{{"System ID"}}">{{Name}} - {{Location}}</option>
+      <li class="list__item">{{name}}: <br>Bikes Available: {{bikesAvailable}} | Docks Available: {{docksAvailable}}</li>
     {{/each}}
-  </select>
-</script>
+    </script>
+    <script id="systems-template" type="text/x-handlebars-template">​
+      <select id="js-systems-select">
+      <option default selected value> - Chose a Bike Share - </option>
+        {{#each this}}
+          <option value="{{"System ID"}}">{{Name}} - {{Location}}</option>
+        {{/each}}
+      </select>
+    </script>
 
- <!-- Scripts -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
-<!-- <script src="assets/papaparse.min.js"></script>
- --><script src="assets/js/app.min.js"></script>
-</body>
+     <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.5/handlebars.min.js"></script>
+    <!-- <script src="assets/papaparse.min.js"></script>
+     --><script src="assets/js/app.min.js"></script>
+  </body>
 </html>
