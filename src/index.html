@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <link rel="stylesheet" href="assets/css/style.css">
     <!--[if lte IE 8]>
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5/leaflet.ie.css" />
@@ -15,16 +16,38 @@
     <li><a href="https://github.com/sco-tt/GBFS-Bikeshare-Map">Source Code</a></li>
   </ul>
 </header>
-    <div class="row fullWidth">
-       <div id="js-stations-map"></div>
+    <div class="row">
+      <h2>Map</h2>
+      <div id="js-systems-list"></div>
+      <div id="js-stations-map"></div>
+    </div>
+    <div class="row">
+      <h2>Station Data</h2>
+      <div id="js-stations-list"></div>
     </div>
 
-    <div id="js-systems-list" style="z-index: 999999999; position: fixed; right: 100px; top: 10px;"></div>
+    
     <script id="station-template" type="text/x-handlebars-template">​
-    {{#each this}}
-      <li class="list__item">{{name}}: <br>Bikes Available: {{bikesAvailable}} | Docks Available: {{docksAvailable}}</li>
-    {{/each}}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Bikes Available</th>
+          <th>Docks Available</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each this}}
+          <tr>
+          <td>{{name}}</td>
+            <td>{{bikesAvailable}}</td>
+            <td>{{docksAvailable}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
     </script>
+
     <script id="systems-template" type="text/x-handlebars-template">​
       <select id="js-systems-select">
       <option default selected value> - Chose a Bike Share - </option>
@@ -35,6 +58,6 @@
     </script>
 
      <!-- Scripts -->
-     <script src="assets/js/app.min.js"></script>
+     <script src="assets/js/app.js"></script>
   </body>
 </html>

@@ -6,12 +6,7 @@
 /** 
  * Custom 
  */
- .fullWidth {
-   width: 100%;
-   margin-left: auto;
-   margin-right: auto;
-   max-width: initial;
-}
+ 
 /**
  * Header
  */
@@ -75,35 +70,34 @@ $transition: all .35s ease-in-out;
 /**
  * Full Page Map
  */
-body {
-  padding: 0;
-  margin: 0;
-}
-html, body {
-  height: 100%;
-}
+
 #js-stations-map {
   height: 500px;
 }
-.timestamp {
-  position: absolute;
-  z-index: 1;
-}
-.list {
-  background: red;
-}
-.list__row {
-  height: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 2;
-  overflow-y: scroll;
-  list-style-type: none;
-  background: rgba(38, 38, 38, 0.45);
-  min-width: 25%;
-  margin: 0;
-}
-.list__item {
-  margin: 0 0 10px;
+// .timestamp {
+//   position: absolute;
+//   z-index: 1;
+// }
+// .list {
+//   background: red;
+// }
+// .list__row {
+//   height: 100%;
+//   position: absolute;
+//   right: 0;
+//   top: 0;
+//   z-index: 2;
+//   overflow-y: scroll;
+//   list-style-type: none;
+//   background: rgba(38, 38, 38, 0.45);
+//   min-width: 25%;
+//   margin: 0;
+// }
+// .list__item {
+//   margin: 0 0 10px;
+// }
+
+#js-systems-list {
+  max-width: 300px;
+  margin: 0 auto;
 }
