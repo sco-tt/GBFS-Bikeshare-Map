@@ -45,6 +45,13 @@ gulp.task('js',['_jshint','_browserify'], function () {
       .pipe(gulp.dest('./build/assets/js'))
 });
 
+gulp.task('js-dev',['_jshint','_browserify'], function () {
+   gulp.src('./build/assets/js/app.js')
+      //.pipe(uglify())
+      //.pipe(rename('app.js'))
+      .pipe(gulp.dest('./build/assets/js'))
+});
+
 // CSS task
 gulp.task('sass', function () {
   return gulp.src('./src/sass/**/*.scss')
