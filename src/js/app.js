@@ -226,11 +226,11 @@ function MapView(model) {
   this.systemsWritten = new Event(this);
   this.systemSelected= new Event(this);
 
-  // Listners
+  // Listeners
   this._model.dataSet.attach(function () {
     _this.drawPoints();
     // _this.writeTime();
-    // _this.listStations();
+     _this.listStations();
   });
 
   this._model.systemSet.attach(function() {
@@ -290,13 +290,14 @@ MapView.prototype = {
 
   listStations: function() {
     var stationData = []; 
+    var activeSystem = this._model.activeSystem;
+    var stations = this._model.data[activeSystem].features;
 
-    var stations = this._model.data.features;
     for (var i = 0; i < stations.length; i++) {
       var name = stations[i].properties.name;
       var address = stations[i].properties.addressStreet;
-      var docksAvailable = stations[i].properties.docksAvailable;
-      var bikesAvailable = stations[i].properties.bikesAvailable;
+      var docksAvailable = stations[i].properties.num_docks_available;
+      var bikesAvailable = stations[i].properties.num_bikes_available;
       var obj = { 
                   name: name, 
                   bikesAvailable: bikesAvailable, 
