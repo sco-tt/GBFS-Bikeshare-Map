@@ -36,7 +36,7 @@ function MapModel() {
   this.data = {};
   this.feedsList = {};
   this.tiles = L.tileLayer(
-    'http://a.tiles.mapbox.com/v3/lyzidiamond.map-ietb6srb/{z}/{x}/{y}.png', {
+    'https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoic2NvLXR0IiwiYSI6IklndkJ4R0kifQ.GJK21rw70t6FDLkzdoKqjQ', {
       maxZoom: 19
     }); 
   this.dataSet = new Event(this);
