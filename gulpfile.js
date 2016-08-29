@@ -71,7 +71,7 @@ gulp.task('html', function() {
 
 
 // Serve 
-gulp.task('serve', ['sass'], function() {
+gulp.task('serve', ['sass', 'html'], function() {
     browserSync.init({
         server: "./build"
     });
